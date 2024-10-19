@@ -1,0 +1,24 @@
+[package]
+name = "em-blinky"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+embassy-executor = { git = "https://github.com/embassy-rs/embassy", version = "0.6.0", features = [
+  "arch-cortex-m",
+  "executor-thread",
+  "defmt",
+  "integrated-timers",
+] }
+defmt-rtt = "0.4"
+panic-probe = { version = "0.3" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy", version = "0.3.2" }
+embassy-rp = { git = "https://github.com/embassy-rs/embassy", version = "0.2.0", features = [
+  "defmt",
+  "time-driver",
+  "critical-section-impl",
+  "rp235xa",
+  "binary-info",
+] }
+cortex-m = { version = "0.7.6" }
+cortex-m-rt = "0.7.0"
