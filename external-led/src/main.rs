@@ -88,9 +88,9 @@ fn main() -> ! {
     // Infinite loop, fading LED up and down
     loop {
         led_pin.set_high().unwrap();
-        delay.delay_ms(500);
+        delay.delay_ms(200);
         led_pin.set_low().unwrap();
-        delay.delay_ms(500);
+        delay.delay_ms(200);
     }
 }
 
