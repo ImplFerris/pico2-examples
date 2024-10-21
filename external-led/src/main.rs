@@ -75,7 +75,7 @@ fn main() -> ! {
     // milliseconds)
     let mut delay = hal::Timer::new_timer0(pac.TIMER0, &mut pac.RESETS, &clocks);
 
-    let mut led_pin = pins.gpio16.into_push_pull_output();
+    let mut led_pin = pins.gpio13.into_push_pull_output();
 
     // Infinite loop, fading LED up and down
     loop {
