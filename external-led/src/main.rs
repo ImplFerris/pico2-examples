@@ -75,14 +75,6 @@ fn main() -> ! {
     // milliseconds)
     let mut delay = hal::Timer::new_timer0(pac.TIMER0, &mut pac.RESETS, &clocks);
 
-    // Init PWMs
-    let mut pwm_slices = hal::pwm::Slices::new(pac.PWM, &mut pac.RESETS);
-
-    // Configure PWM4
-    let pwm = &mut pwm_slices.pwm4;
-    pwm.set_ph_correct();
-    pwm.enable();
-
     let mut led_pin = pins.gpio16.into_push_pull_output();
 
     // Infinite loop, fading LED up and down
