@@ -25,7 +25,7 @@ const XTAL_FREQ_HZ: u32 = 12_000_000u32;
 // const PWM_TOP: u16 = 23_436;
 
 const PWM_DIV_INT: u8 = 64;
-const PWM_TOP: u16 = 46_875;
+const PWM_TOP: u16 = 46_874;
 
 const TOP: u16 = PWM_TOP + 1;
 const MIN_DUTY: u16 = (TOP as f64 * (2.5 / 100.)) as u16;
