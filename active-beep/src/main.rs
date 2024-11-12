@@ -19,13 +19,13 @@ pub static IMAGE_DEF: ImageDef = hal::block::ImageDef::secure_exe();
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
-    let mut led = Output::new(p.PIN_15, Level::Low);
+    let mut buzzer = Output::new(p.PIN_15, Level::Low);
 
     loop {
-        led.set_high();
+        buzzer.set_high();
         Timer::after_millis(500).await;
 
-        led.set_low();
+        buzzer.set_low();
         Timer::after_millis(500).await;
     }
 }
