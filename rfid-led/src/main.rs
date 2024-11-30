@@ -72,7 +72,7 @@ fn main() -> ! {
 
     let spi = ExclusiveDevice::new(spi, spi_cs, timer).unwrap();
     let itf = SpiInterface::new(spi);
-    let mut mfrc522 = Mfrc522::new(itf).init().unwrap();
+    let mut rfid = Mfrc522::new(itf).init().unwrap();
 
     // Replace the UID Bytes with your tag UID
     const TAG_UID: [u8; 4] = [0x13, 0x37, 0x73, 0x31];
@@ -80,8 +80,8 @@ fn main() -> ! {
     loop {
         led.set_low().unwrap();
 
-        if let Ok(atqa) = mfrc522.reqa() {
-            if let Ok(uid) = mfrc522.select(&atqa) {
+        if let Ok(atqa) = rfid.reqa() {
+            if let Ok(uid) = rfid.select(&atqa) {
                 if *uid.as_bytes() == TAG_UID {
                     led.set_high().unwrap();
                     timer.delay_ms(500);

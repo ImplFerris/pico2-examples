@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 
-use embedded_hal::delay::DelayNs;
 use hal::block::ImageDef;
 use heapless::String;
 use panic_halt as _;
@@ -47,7 +46,7 @@ fn main() -> ! {
         sio.gpio_bank0,
         &mut pac.RESETS,
     );
-    let mut timer = hal::Timer::new_timer0(pac.TIMER0, &mut pac.RESETS, &clocks);
+    let timer = hal::Timer::new_timer0(pac.TIMER0, &mut pac.RESETS, &clocks);
 
     // For USB Serial
     let usb_bus = UsbBusAllocator::new(hal::usb::UsbBus::new(
@@ -93,12 +92,36 @@ fn main() -> ! {
         let _ = usb_dev.poll(&mut [&mut serial]);
         if let Ok(atqa) = rfid.reqa() {
             if let Ok(uid) = rfid.select(&atqa) {
-                serial.write("\r\nUID: \r\n".as_bytes()).unwrap();
-                print_hex_to_serial(uid.as_bytes(), &mut serial);
-                timer.delay_ms(500);
+                if let Err(e) = read_block(&uid, &mut rfid, &mut serial) {
+                    serial
+                        .write(e.as_bytes())
+                        .map_err(|_| "Serial failed")
+                        .unwrap();
+                }
+                rfid.hlta().unwrap();
+                rfid.stop_crypto1().unwrap();
             }
         }
     }
+}
+
+fn read_block<E, COMM: mfrc522::comm::Interface<Error = E>, B: UsbBus>(
+    uid: &mfrc522::Uid,
+    rfid: &mut Mfrc522<COMM, mfrc522::Initialized>,
+    serial: &mut SerialPort<B>,
+) -> Result<(), &'static str> {
+    const AUTH_KEY: [u8; 6] = [0xFF; 6];
+    rfid.mf_authenticate(uid, 0, &AUTH_KEY)
+        .map_err(|_| "Auth failed")?;
+
+    for abs_block in 0..4 {
+        let data = rfid.mf_read(abs_block).map_err(|_| "Read failed")?;
+        print_hex_to_serial(&data, serial);
+        serial
+            .write("\r\n".as_bytes())
+            .map_err(|_| "Write failed")?;
+    }
+    Ok(())
 }
 
 fn print_hex_to_serial<B: UsbBus>(data: &[u8], serial: &mut SerialPort<B>) {
