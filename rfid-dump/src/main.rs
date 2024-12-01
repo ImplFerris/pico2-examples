@@ -92,7 +92,7 @@ fn main() -> ! {
         let _ = usb_dev.poll(&mut [&mut serial]);
         if let Ok(atqa) = rfid.reqa() {
             if let Ok(uid) = rfid.select(&atqa) {
-                if let Err(e) = read_sector(&uid, 0, &mut rfid, &mut serial) {
+                if let Err(e) = dump_memory(&uid, &mut rfid, &mut serial) {
                     serial.write(e.as_bytes()).unwrap();
                 }
                 rfid.hlta().unwrap();
@@ -100,6 +100,22 @@ fn main() -> ! {
             }
         }
     }
+}
+
+fn dump_memory<E, COMM: mfrc522::comm::Interface<Error = E>, B: UsbBus>(
+    uid: &mfrc522::Uid,
+    rfid: &mut Mfrc522<COMM, mfrc522::Initialized>,
+    serial: &mut SerialPort<B>,
+) -> Result<(), &'static str> {
+    let mut buff: String<64> = String::new();
+    for sector in 0..16 {
+        // Printing the Sector number
+        write!(buff, "\r\n-----------SECTOR {}-----------\r\n", sector).unwrap();
+        serial.write(buff.as_bytes()).unwrap();
+        buff.clear();
+        read_sector(uid, sector, rfid, serial)?;
+    }
+    Ok(())
 }
 
 fn read_sector<E, COMM: mfrc522::comm::Interface<Error = E>, B: UsbBus>(
@@ -110,18 +126,42 @@ fn read_sector<E, COMM: mfrc522::comm::Interface<Error = E>, B: UsbBus>(
 ) -> Result<(), &'static str> {
     const AUTH_KEY: [u8; 6] = [0xFF; 6];
 
+    let mut buff: String<64> = String::new();
+
     let block_offset = sector * 4;
     rfid.mf_authenticate(uid, block_offset, &AUTH_KEY)
         .map_err(|_| "Auth failed")?;
 
     for abs_block in block_offset..block_offset + 4 {
+        let rel_block = abs_block - block_offset;
         let data = rfid.mf_read(abs_block).map_err(|_| "Read failed")?;
+
+        // Prining the Block absolute and relative numbers
+        write!(buff, "\r\nBLOCK {} (REL: {}) | ", abs_block, rel_block).unwrap();
+        serial.write(buff.as_bytes()).unwrap();
+        buff.clear();
+
+        // Printing the block data
         print_hex_to_serial(&data, serial);
-        serial
-            .write("\r\n".as_bytes())
-            .map_err(|_| "Write failed")?;
+
+        // Printing block type
+        let block_type = get_block_type(sector, rel_block);
+        write!(buff, "| {} ", block_type).unwrap();
+        serial.write(buff.as_bytes()).unwrap();
+        buff.clear();
     }
+    serial
+        .write("\r\n".as_bytes())
+        .map_err(|_| "Write failed")?;
     Ok(())
+}
+
+fn get_block_type(sector: u8, rel_block: u8) -> &'static str {
+    match rel_block {
+        0 if sector == 0 => "MFD",
+        3 => "TRAILER",
+        _ => "DATA",
+    }
 }
 
 fn print_hex_to_serial<B: UsbBus>(data: &[u8], serial: &mut SerialPort<B>) {
