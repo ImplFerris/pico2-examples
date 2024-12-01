@@ -95,7 +95,7 @@ fn main() -> ! {
         0xFF, 0x07, 0x80, 0x69, // Access bits and trailer byte
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // Key B
     ];
-    let old_key = &[0xFF; 6];
+    let current_key = &[0xFF; 6];
     let new_key: &[u8; 6] = &DATA[..6].try_into().unwrap();
 
     loop {
@@ -106,12 +106,14 @@ fn main() -> ! {
                 serial
                     .write("\r\n----Before Write----\r\n".as_bytes())
                     .unwrap();
-                if let Err(e) = read_sector(&uid, target_sector, old_key, &mut rfid, &mut serial) {
+                if let Err(e) =
+                    read_sector(&uid, target_sector, current_key, &mut rfid, &mut serial)
+                {
                     serial.write(e.as_bytes()).unwrap();
                 }
 
                 if let Err(e) =
-                    write_block(&uid, target_sector, rel_block, DATA, old_key, &mut rfid)
+                    write_block(&uid, target_sector, rel_block, DATA, current_key, &mut rfid)
                 {
                     serial.write(e.as_bytes()).unwrap();
                 }
