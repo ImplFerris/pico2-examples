@@ -93,7 +93,7 @@ fn main() -> ! {
     const DATA: [u8; 16] = [
         0x52, 0x75, 0x73, 0x74, 0x65, 0x64, // Key A: "Rusted"
         0xFF, 0x07, 0x80, 0x69, // Access bits and trailer byte
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // Key B
+        0x46, 0x65, 0x72, 0x72, 0x69, 0x73, // Key B: "Ferris"
     ];
     let current_key = &[0xFF; 6];
     let new_key: &[u8; 6] = &DATA[..6].try_into().unwrap();
@@ -139,8 +139,6 @@ fn write_block<E, COMM: mfrc522::comm::Interface<Error = E>>(
     key: &[u8; 6],
     rfid: &mut Mfrc522<COMM, mfrc522::Initialized>,
 ) -> Result<(), &'static str> {
-    // const AUTH_KEY: [u8; 6] = [0xFF; 6];
-
     let block_offset = sector * 4;
     let abs_block = block_offset + rel_block;
 
