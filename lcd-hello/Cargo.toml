@@ -16,5 +16,4 @@ rp235x-hal = { git = "https://github.com/rp-rs/rp-hal", version = "0.2.0", featu
 ] }
 panic-halt = "0.2.0"
 rp-binary-info = "0.1.0"
-lcd1602-driver = "0.2.0"
 hd44780-driver = "0.4.0"
