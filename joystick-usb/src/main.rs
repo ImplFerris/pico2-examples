@@ -67,8 +67,11 @@ fn main() -> ! {
     let mut btn = pins.gpio15.into_pull_up_input();
 
     let mut adc = hal::Adc::new(pac.ADC, &mut pac.RESETS);
-    let mut adc_pin_0 = hal::adc::AdcPin::new(pins.gpio26).unwrap();
+
+    //VRX Pin
     let mut adc_pin_1 = hal::adc::AdcPin::new(pins.gpio27).unwrap();
+    // VRY pin
+    let mut adc_pin_0 = hal::adc::AdcPin::new(pins.gpio26).unwrap();
 
     let mut prev_vrx: u16 = 0;
     let mut prev_vry: u16 = 0;
@@ -78,10 +81,10 @@ fn main() -> ! {
     loop {
         let _ = usb_dev.poll(&mut [&mut serial]);
 
-        let Ok(vrx): Result<u16, _> = adc.read(&mut adc_pin_0) else {
+        let Ok(vry): Result<u16, _> = adc.read(&mut adc_pin_0) else {
             continue;
         };
-        let Ok(vry): Result<u16, _> = adc.read(&mut adc_pin_1) else {
+        let Ok(vrx): Result<u16, _> = adc.read(&mut adc_pin_1) else {
             continue;
         };
 
