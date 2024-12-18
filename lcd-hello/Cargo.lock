@@ -266,19 +266,9 @@ dependencies = [
  "cortex-m-rt",
  "embedded-hal 1.0.0",
  "hd44780-driver",
- "lcd1602-driver",
  "panic-halt",
  "rp-binary-info 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rp235x-hal",
-]
-
-[[package]]
-name = "lcd1602-driver"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdb652c2baa6cb47531bf0b594d0a7c1de1d4a34a69e1c8fdd49a1f2d56a8929"
-dependencies = [
- "embedded-hal 1.0.0",
 ]
 
 [[package]]
